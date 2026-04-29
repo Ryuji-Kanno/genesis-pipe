@@ -80,18 +80,38 @@
       }
 
       .title {
-        font-weight: 900;
-        font-size: 13px;
-        letter-spacing: 0.25em;
-        text-transform: uppercase;
-        color: var(--gold-400);
         display: flex;
         align-items: center;
-        gap: 6px;
-        text-shadow: 0 0 12px rgba(240,192,64,0.5), 0 0 24px rgba(240,192,64,0.2);
       }
 
-      .title .material-icons { font-size: 18px; }
+      /* ロゴ画像 ネオン明滅（drop-shadow で画像輪郭に沿って光る） */
+      @keyframes logo-neon-flicker {
+        0%,  8%,  10%, 45%, 48%, 100% {
+          filter:
+            drop-shadow(0 0 2px rgba(255,255,200,0.95))
+            drop-shadow(0 0 6px rgba(240,192,64,0.85))
+            drop-shadow(0 0 14px rgba(240,192,64,0.45))
+            drop-shadow(0 0 26px rgba(240,192,64,0.2));
+        }
+        4% {
+          filter: drop-shadow(0 0 1px rgba(240,192,64,0.15));
+        }
+        6% {
+          filter:
+            drop-shadow(0 0 2px rgba(255,255,200,0.5))
+            drop-shadow(0 0 5px rgba(240,192,64,0.4));
+        }
+        46% {
+          filter: drop-shadow(0 0 1px rgba(240,192,64,0.15));
+        }
+      }
+
+      .title-logo {
+        height: 34px;
+        width: auto;
+        display: block;
+        animation: logo-neon-flicker 7s ease-in-out infinite;
+      }
 
       .switch-container {
         display: flex;
@@ -295,9 +315,7 @@
         }
       }
 
-      .title {
-        animation: neon-flicker 7s ease-in-out infinite;
-      }
+      /* .title へのテキスト明滅は廃止。ロゴ画像側の logo-neon-flicker を使用 */
 
       /* ── ② セーブボタン 輪郭ライト走行 (@property) ── */
       @property --ba {
@@ -398,8 +416,7 @@
     <!-- Header -->
     <div class="header glass">
       <div class="title">
-        <span class="material-icons">rocket_launch</span>
-        Genesis Pipe
+        <img src="./Genesis_pipe_Logo.png" alt="Genesis Pipe" class="title-logo">
       </div>
       <div class="switch-container">
         <span id="mode-label">記録</span>

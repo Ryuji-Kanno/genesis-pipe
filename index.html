@@ -10,20 +10,12 @@
       body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f2f2f7; margin: 0; display: flex; flex-direction: column; height: 100vh; }
       .header { background: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.1); z-index: 10; }
       .title { font-weight: 700; color: #2196F3; display: flex; align-items: center; gap: 5px; }
-      .switch-container { display: flex; align-items: center; font-size: 12px; color: #666; gap: 8px; }
-      .switch { position: relative; display: inline-block; width: 44px; height: 26px; }
-      .switch input { opacity: 0; width: 0; height: 0; }
-      .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e9e9eb; transition: .3s; border-radius: 34px; }
-      .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-      input:checked + .slider { background-color: #34C759; }
-      input:checked + .slider:before { transform: translateX(18px); }
       #chat-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
       .bubble { max-width: 85%; padding: 10px 14px; border-radius: 18px; font-size: 15px; line-height: 1.4; word-wrap: break-word; }
       .bubble.user   { align-self: flex-end;   background: #2196F3; color: white; border-bottom-right-radius: 4px; }
       .bubble.titan  { align-self: flex-start; background: #fff; color: #333; border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
       .bubble.system { align-self: center; background: rgba(0,0,0,0.05); color: #666; font-size: 12px; padding: 4px 10px; border-radius: 10px; margin: 5px 0; }
       .footer { background: #fff; padding: 10px; border-top: 1px solid #e0e0e0; display: flex; flex-direction: column; gap: 8px; }
-      #save-area { display: none; padding-bottom: 5px; }
       #save-btn { width: 100%; padding: 10px; background: #FF9500; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 5px; }
       .input-row { display: flex; gap: 8px; align-items: flex-end; }
       #text-input { flex: 1; padding: 12px; border-radius: 20px; border: 1px solid #ddd; background: #f9f9f9; font-size: 16px; line-height: 1.4; max-height: 100px; resize: none; outline: none; }
@@ -32,29 +24,19 @@
       #mic-btn { background: #e9e9eb; color: #2196F3; }
       #mic-btn.recording { background: #ff3b30; color: white; animation: pulse 1.5s infinite; }
       @keyframes pulse { 0% {box-shadow: 0 0 0 0 rgba(255,59,48,0.4);} 70% {box-shadow: 0 0 0 10px rgba(255,59,48,0);} 100% {box-shadow: 0 0 0 0 rgba(255,59,48,0);} }
-      .typing-indicator { display: flex; gap: 4px; padding: 5px; }
-      .dot { width: 6px; height: 6px; background: #bbb; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
-      @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
     </style>
   </head>
   <body>
     <div class="header">
       <div class="title"><span class="material-icons" style="color: #2196F3;">flight</span> Genesis Pipe (External)</div>
-      <div class="switch-container">
-        <span id="mode-label">記録</span>
-        <label class="switch">
-          <input type="checkbox" id="ai-toggle" onchange="toggleMode()">
-          <span class="slider"></span>
-        </label>
-      </div>
     </div>
 
     <div id="chat-area">
-      <div class="bubble titan">【外部パイプ：音声フル稼働】<br>システムは原因側にあります。マイクで直接あなたの言葉を刻んでください。</div>
+      <div class="bubble titan">【準備完了】<br>思考を連ねてください。保存ボタンで全ログを記録します。</div>
     </div>
 
     <div class="footer">
-      <div id="save-area"><button id="save-btn" onclick="saveConversation()"><span class="material-icons">save</span> 会話ログを保存して終了</button></div>
+      <button id="save-btn" onclick="saveConversation()"><span class="material-icons">save</span> 会話ログを保存して終了</button>
       <div class="input-row">
         <button id="mic-btn" class="icon-btn" onclick="toggleRecording()"><span class="material-icons">mic</span></button>
         <textarea id="text-input" rows="1" placeholder="入力..."></textarea>
@@ -63,43 +45,39 @@
     </div>
 
     <script>
-      // 🔴🔴🔴 GASで新しく発行した「全員」アクセス権限のURLをここに貼り付けてください 🔴🔴🔴
       const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxDEb1rJ87VNSQk8U_o8JzjUr8yKtp2zw8C8p3XxLOFBMqczKn7ulBu-XbTQzLuY7Jo/exec";
-
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       const recognition = new SpeechRecognition();
-      recognition.lang = 'ja-JP'; recognition.continuous = true; recognition.interimResults = false;
+      recognition.lang = 'ja-JP'; recognition.continuous = true;
       let isRecording = false; let conversationHistory = "";
       
       const textInput = document.getElementById('text-input');
       const micBtn    = document.getElementById('mic-btn');
-      const chatArea  = document.getElementById('chat-area');
-      const aiToggle  = document.getElementById('ai-toggle');
-      const saveArea  = document.getElementById('save-area');
 
       function toggleRecording() { if (!isRecording) { recognition.start(); } else { recognition.stop(); } }
-      recognition.onstart = () => { isRecording = true; micBtn.classList.add('recording'); textInput.placeholder = "音声認識中..."; };
-      recognition.onend = () => { isRecording = false; micBtn.classList.remove('recording'); textInput.placeholder = "入力..."; };
+      recognition.onstart = () => { isRecording = true; micBtn.classList.add('recording'); };
+      recognition.onend = () => { isRecording = false; micBtn.classList.remove('recording'); };
       recognition.onresult = (e) => {
-        let newTranscript = "";
-        for (let i = e.resultIndex; i < e.results.length; ++i) { if (e.results[i].isFinal) newTranscript += e.results[i][0].transcript; }
-        if (newTranscript) { textInput.value += (textInput.value ? "\n" : "") + newTranscript; autoResize(textInput); }
+        for (let i = e.resultIndex; i < e.results.length; ++i) {
+          if (e.results[i].isFinal) textInput.value += (textInput.value ? "\n" : "") + e.results[i][0].transcript;
+        }
       };
-      recognition.onerror = (e) => { addBubble("⚠️ マイクエラー: " + e.error, 'system'); };
 
       function handleSend() {
         const text = textInput.value.trim();
         if (!text) return;
-        if (isRecording) recognition.stop();
         addBubble(text, 'user');
-        textInput.value = ""; textInput.style.height = 'auto';
+        textInput.value = "";
         conversationHistory += `[Rikki]: ${text}\n`;
-        if (aiToggle.checked) { requestAiReply(text); } else { saveToGas("save", text); }
-      }
-
-      function requestAiReply(userText) {
+        
+        // AI対話モード（会話中なので、ここでは即時GAS送信せず、ローカルで処理して後でまとめて送る）
         const loadingId = addLoading();
-        saveToGas("ai_chat", userText, conversationHistory, (data) => {
+        fetch(WEB_APP_URL, {
+          method: "POST",
+          body: JSON.stringify({ type: "ai_chat", fullText: text, history: conversationHistory })
+        })
+        .then(r => r.json())
+        .then(data => {
           removeLoading(loadingId);
           addBubble(data.reply, 'titan');
           conversationHistory += `[Titan]: ${data.reply}\n`;
@@ -108,62 +86,26 @@
 
       function saveConversation() {
         if (!conversationHistory) return;
-        addBubble("💾 全会話を保存中...", 'system');
-        saveToGas("save", conversationHistory, null, () => {
-          addBubble("✅ 保存完了", 'system');
+        addBubble("💾 全会話をスプレッドシートへ同期中...", 'system');
+        fetch(WEB_APP_URL, {
+          method: "POST",
+          body: JSON.stringify({ type: "save", fullText: conversationHistory })
+        })
+        .then(() => {
+          addBubble("✅ 保存完了。セッションを終了します。", 'system');
           conversationHistory = "";
         });
       }
 
-      // 🌐 GAS通信用コアエンジン (完全同期版)
-      function saveToGas(type, text, history = null, callback = null) {
-        if (WEB_APP_URL.indexOf("ここに") !== -1) { alert("WEB_APP_URLを設定してください"); return; }
-        
-        fetch(WEB_APP_URL, {
-          method: "POST",
-          body: JSON.stringify({ type: type, fullText: text, history: history })
-        })
-        .then(response => {
-          if (response.ok || response.type === 'opaque') return response.json();
-          throw new Error('Network response was not ok.');
-        })
-        .then(data => {
-          if (callback) {
-            callback(data); 
-          } else {
-            if (data.status === 'success') {
-              addBubble("✅ スプレッドシートに記録完了", 'system');
-              if (data.oracle) addBubble("🔮 " + data.oracle, 'titan');
-            }
-          }
-        })
-        .catch(err => {
-          if (type === "ai_chat") {
-            addBubble("（記録は成功していますが、ブラウザの制限で返信を表示できません。スプレッドシートをご確認ください）", 'system');
-          } else {
-            addBubble("✅ 記録成功（レスポンスのみブロックされました）", 'system');
-          }
-          console.log("Fetch Error:", err);
-        });
-      }
-
-      function toggleMode() {
-        const isOn = aiToggle.checked;
-        document.getElementById('mode-label').innerText = isOn ? "AI対話" : "記録";
-        saveArea.style.display = isOn ? 'block' : 'none';
-      }
       function addBubble(text, type) {
         const div = document.createElement('div'); div.className = `bubble ${type}`; div.innerHTML = text.replace(/\n/g, '<br>');
-        chatArea.appendChild(div); chatArea.scrollTop = chatArea.scrollHeight;
+        document.getElementById('chat-area').appendChild(div);
       }
       function addLoading() {
-        const id = 'loading-' + Date.now(); const div = document.createElement('div'); div.id = id; div.className = 'bubble titan';
-        div.innerHTML = '<div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
-        chatArea.appendChild(div); chatArea.scrollTop = chatArea.scrollHeight; return id;
+        const id = 'loading'; const div = document.createElement('div'); div.id = id; div.className = 'bubble titan';
+        div.innerHTML = '...'; document.getElementById('chat-area').appendChild(div); return id;
       }
       function removeLoading(id) { const el = document.getElementById(id); if (el) el.remove(); }
-      function autoResize(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
-      textInput.addEventListener('input', function() { autoResize(this); });
     </script>
   </body>
 </html>

@@ -864,6 +864,8 @@
 
       let isRecording = false;
       let conversationHistory = "";
+      let silenceTimer = null;
+      const SILENCE_DELAY = 800; // 無音→改行までのms
 
       const textInput = document.getElementById('text-input');
       const micBtn    = document.getElementById('mic-btn');
@@ -881,7 +883,8 @@
       recognition.onend = () => {
         isRecording = false;
         micBtn.classList.remove('recording');
-        textInput.placeholder = "思考を入力…";
+        textInput.placeholder = "思考を入力… (送信は→ボタン または 音声「送信」)";
+        clearTimeout(silenceTimer); // 停止時は改行タイマーをキャンセル
       };
       recognition.onresult = (e) => {
         let transcript = "";
@@ -890,18 +893,27 @@
         }
         if (!transcript) return;
 
-        // 末尾の句読点・空白を除去してキーワード判定
-        const keyword = transcript.trim().replace(/[。、！!？?\s…　]+$/, '');
+        // 無音タイマーをリセット（新しい音声が来たので改行をキャンセル）
+        clearTimeout(silenceTimer);
 
-        // 「送信」単独発話 → テキストを送信。テキストエリア・チャットへの表示なし
+        // 「送信」単独発話 → 送信トリガー（テキストエリア・チャットへの表示なし）
+        const keyword = transcript.trim().replace(/[。、！!？?\s…　]+$/, '');
         if (keyword === '送信') {
           handleSend();
           return;
         }
 
-        // 通常テキストはテキストエリアに追記
-        textInput.value += (textInput.value ? "\n" : "") + transcript;
+        // テキストを追記（同じ発話ブロック内はそのまま連結）
+        textInput.value += transcript;
         autoResize(textInput);
+
+        // 0.8秒無音が続いたら改行を挿入（次の発話が新しい行から始まる）
+        silenceTimer = setTimeout(() => {
+          if (isRecording && textInput.value && !textInput.value.endsWith('\n')) {
+            textInput.value += '\n';
+            autoResize(textInput);
+          }
+        }, SILENCE_DELAY);
       };
       recognition.onerror = (e) => addBubble("⚠️ マイクエラー: " + e.error, 'system');
 

@@ -84,64 +84,107 @@
         align-items: center;
       }
 
-      /* ロゴ画像 ネオン明滅（drop-shadow で画像輪郭に沿って光る） */
-      @keyframes logo-neon-flicker {
-        0%,  8%,  10%, 45%, 48%, 100% {
-          filter:
-            drop-shadow(0 0 2px rgba(255,255,200,0.95))
-            drop-shadow(0 0 6px rgba(240,192,64,0.85))
-            drop-shadow(0 0 14px rgba(240,192,64,0.45))
-            drop-shadow(0 0 26px rgba(240,192,64,0.2));
-        }
-        4% {
-          filter: drop-shadow(0 0 1px rgba(240,192,64,0.15));
-        }
-        6% {
-          filter:
-            drop-shadow(0 0 2px rgba(255,255,200,0.5))
-            drop-shadow(0 0 5px rgba(240,192,64,0.4));
-        }
-        46% {
-          filter: drop-shadow(0 0 1px rgba(240,192,64,0.15));
-        }
-      }
-
+      /* ── ロゴ：ネオンなし、そのまま表示 ── */
       .title-logo {
         height: 34px;
         width: auto;
         display: block;
-        animation: logo-neon-flicker 7s ease-in-out infinite;
+      }
+
+      /* ── トグルラッパー：輪郭ライン走行 ── */
+      @property --ta {
+        syntax: '<angle>';
+        initial-value: 0deg;
+        inherits: false;
+      }
+      @keyframes toggle-border-spin {
+        to { --ta: 360deg; }
+      }
+      /* #toggle-wrap はシンプルなラッパーに戻す */
+      #toggle-wrap { display: flex; align-items: center; }
+
+      /* スイッチ枠だけに光ラインを走らせる */
+      #switch-border {
+        padding: 1.5px;
+        border-radius: 9999px;
+        background: conic-gradient(
+          from var(--ta),
+          rgba(240,192,64,0)    0%,
+          rgba(240,192,64,0)    38%,
+          rgba(255,250,160,1)   46%,
+          rgba(255,255,200,1)   50%,
+          rgba(255,250,160,1)   54%,
+          rgba(240,192,64,0)    62%,
+          rgba(240,192,64,0)   100%
+        );
+        animation: toggle-border-spin 6s linear infinite;
+        display: inline-flex;
       }
 
       .switch-container {
         display: flex;
         align-items: center;
         font-size: 11px;
-        color: var(--text-secondary);
+        color: #ffffff;
         gap: 8px;
         font-weight: 700;
         letter-spacing: 0.05em;
         text-transform: uppercase;
+        background: var(--glass-bg);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border-radius: 9999px;
+        padding: 5px 10px;
       }
 
+      /* ── スイッチ トグル ── */
       .switch { position: relative; display: inline-block; width: 44px; height: 26px; }
       .switch input { opacity: 0; width: 0; height: 0; }
       .slider {
         position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-        background-color: rgba(255,255,255,0.1);
-        border: 1px solid rgba(255,255,255,0.08);
+        background: linear-gradient(180deg, rgba(30,30,60,0.8), rgba(10,10,30,0.9));
+        border: 1px solid rgba(255,255,255,0.12);
         transition: .3s; border-radius: 34px;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.6), inset 0 -1px 2px rgba(255,255,255,0.05);
       }
+
+      /* 球体ノブ */
       .slider:before {
         position: absolute; content: ""; height: 20px; width: 20px;
-        left: 2px; bottom: 2px; background-color: var(--text-secondary);
-        transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+        left: 2px; bottom: 2px; border-radius: 50%;
+        background: radial-gradient(circle at 35% 32%,
+          rgba(255,255,255,0.95) 0%,
+          rgba(200,210,230,0.9)  28%,
+          rgba(140,155,185,0.85) 55%,
+          rgba(80,95,130,0.9)    80%,
+          rgba(40,55,90,1)       100%
+        );
+        box-shadow:
+          0 3px 6px rgba(0,0,0,0.7),
+          inset 0 1px 3px rgba(255,255,255,0.6),
+          inset 0 -1px 2px rgba(0,0,0,0.4);
+        transition: .3s;
       }
-      input:checked + .slider { background-color: rgba(240,192,64,0.5); border-color: transparent; }
+
+      input:checked + .slider {
+        background: linear-gradient(180deg, rgba(180,130,0,0.5), rgba(100,70,0,0.6));
+        border-color: rgba(240,192,64,0.3);
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 0 8px rgba(240,192,64,0.2);
+      }
       input:checked + .slider:before {
         transform: translateX(18px);
-        background-color: var(--gold-400);
-        box-shadow: 0 0 10px rgba(240,192,64,0.8);
+        background: radial-gradient(circle at 35% 32%,
+          rgba(255,255,220,1)    0%,
+          rgba(255,220,80,0.95)  30%,
+          rgba(240,160,20,0.9)   60%,
+          rgba(180,100,0,0.95)   85%,
+          rgba(120,60,0,1)       100%
+        );
+        box-shadow:
+          0 3px 8px rgba(0,0,0,0.6),
+          0 0 10px rgba(240,192,64,0.7),
+          inset 0 1px 3px rgba(255,255,200,0.8),
+          inset 0 -1px 2px rgba(100,50,0,0.5);
       }
 
       /* ── Chat Area ── */
@@ -192,7 +235,7 @@
       .bubble.system {
         align-self: center;
         background: rgba(0,0,0,0.35);
-        color: var(--text-secondary);
+        color: #ffffff;
         font-size: 11px;
         padding: 5px 14px;
         border-radius: 20px;
@@ -245,13 +288,30 @@
       }
 
       #send-btn {
-        background: linear-gradient(135deg, var(--gold-500), var(--gold-400));
+        background: radial-gradient(circle at 36% 30%,
+          rgba(255,252,180,1)   0%,
+          rgba(255,220,60,0.95) 25%,
+          var(--gold-400)       48%,
+          var(--gold-500)       70%,
+          var(--gold-600)       88%,
+          rgba(90,50,0,1)       100%
+        );
         color: var(--navy-950);
-        box-shadow: 0 4px 16px var(--gold-glow-strong);
+        box-shadow:
+          0 5px 16px rgba(0,0,0,0.6),
+          0 2px 8px var(--gold-glow-strong),
+          inset 0 1px 4px rgba(255,255,200,0.7),
+          inset 0 -2px 4px rgba(0,0,0,0.35);
+        border: none;
       }
-      #send-btn .material-icons { font-size: 20px; }
-      #send-btn:active { transform: scale(0.92); }
-      #send-btn:hover { box-shadow: 0 4px 24px rgba(240,192,64,0.5); }
+      #send-btn .material-icons { font-size: 20px; text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+      #send-btn:active {
+        transform: scale(0.92);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.5), inset 0 2px 5px rgba(0,0,0,0.3);
+      }
+      #send-btn:hover {
+        box-shadow: 0 6px 20px rgba(240,192,64,0.55), inset 0 1px 4px rgba(255,255,200,0.8), inset 0 -2px 4px rgba(0,0,0,0.3);
+      }
 
       #mic-btn {
         background: rgba(13,21,38,0.8);
@@ -343,7 +403,7 @@
           rgba(240,192,64,0)    62%,
           rgba(240,192,64,0)   100%
         );
-        animation: save-border-spin 2.8s linear infinite;
+        animation: save-border-spin 7s linear infinite;
       }
 
       #save-btn {
@@ -418,18 +478,22 @@
       <div class="title">
         <img src="./Genesis_pipe_Logo.png" alt="Genesis Pipe" class="title-logo">
       </div>
-      <div class="switch-container">
-        <span id="mode-label">記録</span>
-        <label class="switch">
-          <input type="checkbox" id="ai-toggle" onchange="toggleMode()">
-          <span class="slider"></span>
-        </label>
+      <div id="toggle-wrap">
+        <div class="switch-container">
+          <span id="mode-label">記録</span>
+          <div id="switch-border">
+            <label class="switch">
+              <input type="checkbox" id="ai-toggle" onchange="toggleMode()">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Chat -->
     <div id="chat-area">
-      <div class="bubble system">深宇宙（原因側）に展開済み。マイクで言葉を刻んでください。</div>
+      <div class="bubble system">あなたの貴重な言葉を宇宙に刻んでください。</div>
     </div>
 
     <!-- BGM -->
@@ -535,7 +599,7 @@
               x, y,
               vx: Math.cos(a) * s,
               vy: Math.sin(a) * s,
-              radius:     1.2 + Math.random() * 1.6,
+              radius:     0.6 + Math.random() * 0.8,
               pulse:      Math.random() * Math.PI * 2,
               pulseSpeed: 0.014 + Math.random() * 0.014,
               flash:      0,

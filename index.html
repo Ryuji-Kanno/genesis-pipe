@@ -193,27 +193,7 @@
         border-top: 1px solid rgba(255,255,255,0.04);
       }
 
-      /* Save button */
-      #save-btn {
-        width: 100%; padding: 11px;
-        background: linear-gradient(135deg, rgba(22,34,68,0.8), rgba(13,21,38,0.9));
-        color: var(--text-primary);
-        border: 1px solid var(--glass-border);
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 13px;
-        letter-spacing: 0.08em;
-        cursor: pointer;
-        display: flex; justify-content: center; align-items: center; gap: 6px;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        transition: border-color 0.25s, box-shadow 0.25s;
-      }
-      #save-btn:hover {
-        border-color: rgba(240,192,64,0.4);
-        box-shadow: 0 0 16px var(--gold-glow);
-      }
-      #save-btn:active { transform: scale(0.985); }
+      /* #save-btn は下部の @property ブロックで定義 */
 
       /* Input row */
       .input-row { display: flex; gap: 10px; align-items: flex-end; }
@@ -335,11 +315,120 @@
       }
       #bgm-slider.open { display: block; }
 
-      /* ── Gold pulse animation (used on nodes) ── */
-      @keyframes pulse-gold {
-        0%, 100% { box-shadow: 0 0 8px var(--gold-glow); }
-        50%       { box-shadow: 0 0 24px var(--gold-glow-strong); }
+      /* ── ① タイトル ネオン明滅 ── */
+      @keyframes neon-flicker {
+        0%,  8%,  10%, 45%, 48%, 100% {
+          color: var(--gold-400);
+          text-shadow:
+            0 0 4px rgba(255,255,200,0.6),
+            0 0 10px var(--gold-400),
+            0 0 22px var(--gold-400),
+            0 0 44px var(--gold-500);
+        }
+        4% {
+          color: rgba(240,192,64,0.35);
+          text-shadow: none;
+        }
+        6% {
+          color: rgba(240,192,64,0.8);
+          text-shadow: 0 0 6px var(--gold-400);
+        }
+        46% {
+          color: rgba(240,192,64,0.4);
+          text-shadow: none;
+        }
       }
+
+      .title {
+        animation: neon-flicker 7s ease-in-out infinite;
+      }
+
+      /* ── ② セーブボタン 輪郭ライト走行 (@property) ── */
+      @property --ba {
+        syntax: '<angle>';
+        initial-value: 0deg;
+        inherits: false;
+      }
+
+      @keyframes save-border-spin {
+        to { --ba: 360deg; }
+      }
+
+      #save-area {
+        flex: 1;
+        position: relative;
+        padding: 1.5px;
+        border-radius: 13px;
+        background: conic-gradient(
+          from var(--ba),
+          rgba(240,192,64,0)    0%,
+          rgba(240,192,64,0)    38%,
+          rgba(255,250,160,1)   46%,
+          rgba(255,255,200,1)   50%,
+          rgba(255,250,160,1)   54%,
+          rgba(240,192,64,0)    62%,
+          rgba(240,192,64,0)   100%
+        );
+        animation: save-border-spin 2.8s linear infinite;
+      }
+
+      #save-btn {
+        width: 100%; padding: 11px;
+        background: linear-gradient(135deg, rgba(22,34,68,0.92), rgba(13,21,38,0.96));
+        color: var(--text-primary);
+        border: none;
+        border-radius: 11.5px;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        display: flex; justify-content: center; align-items: center; gap: 6px;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition: box-shadow 0.25s;
+      }
+      #save-btn:hover { box-shadow: 0 0 18px var(--gold-glow-strong); }
+      #save-btn:active { transform: scale(0.985); }
+
+      /* ── ③ BGM ＋ セーブ 横並び行 ── */
+      .save-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* ── ④ BGM Control（インライン配置、fixed 解除） ── */
+      #bgm-control {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 11px;
+        border-radius: 9999px;
+        background: var(--glass-bg);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border: 1px solid var(--glass-border);
+        flex-shrink: 0;
+      }
+
+      #bgm-toggle {
+        background: none; border: none; cursor: pointer;
+        color: var(--text-primary);
+        display: flex; align-items: center; padding: 0;
+        transition: color 0.2s;
+      }
+      #bgm-toggle:hover { color: var(--gold-400); }
+      #bgm-toggle .material-icons { font-size: 16px; }
+
+      #bgm-slider-toggle {
+        background: none; border: none; cursor: pointer;
+        color: var(--text-secondary); font-size: 10px;
+        line-height: 1; padding: 0; transition: opacity 0.2s;
+      }
+      #bgm-slider-toggle:hover { color: var(--text-primary); }
+
+      #bgm-slider { display: none; width: 66px; accent-color: var(--gold-400); }
+      #bgm-slider.open { display: block; }
     </style>
   </head>
   <body>
@@ -370,42 +459,44 @@
       <div class="bubble system">深宇宙（原因側）に展開済み。マイクで言葉を刻んでください。</div>
     </div>
 
+    <!-- BGM -->
+    <audio id="bgm-audio" src="./AI_PARTNER_SYNC_BGM.m4a" loop preload="none"></audio>
+
     <!-- Footer -->
     <div class="footer glass">
-      <div id="save-area">
-        <button id="save-btn" onclick="saveConversation()">
-          <span class="material-icons" style="font-size:18px;">save</span>
-          会話ログを保存して終了
-        </button>
+      <!-- BGM + Save button (同じ行) -->
+      <div class="save-row">
+        <div id="bgm-control">
+          <button id="bgm-toggle" onclick="toggleBgm()" title="BGM ON/OFF">
+            <span class="material-icons" id="bgm-icon">volume_off</span>
+          </button>
+          <button id="bgm-slider-toggle" onclick="toggleBgmSlider()">▲</button>
+          <input type="range" id="bgm-slider" min="0" max="100" value="8" oninput="setBgmVolume(this.value)">
+        </div>
+        <div id="save-area">
+          <button id="save-btn" onclick="saveConversation()">
+            <span class="material-icons" style="font-size:18px;">save</span>
+            会話ログを保存して終了
+          </button>
+        </div>
       </div>
+      <!-- Input row -->
       <div class="input-row">
         <button id="mic-btn" class="icon-btn" onclick="toggleRecording()">
           <span class="material-icons">mic</span>
         </button>
-        <textarea id="text-input" rows="1" placeholder="思考を入力…"></textarea>
+        <textarea id="text-input" rows="1" placeholder="思考を入力… (送信は→ボタン または 音声「送信」)"></textarea>
         <button id="send-btn" class="icon-btn" onclick="handleSend()">
           <span class="material-icons">send</span>
         </button>
       </div>
     </div>
 
-    <!-- BGM -->
-    <audio id="bgm-audio" src="./AI_PARTNER_SYNC_BGM.m4a" loop preload="none"></audio>
-
-    <!-- BGM Control -->
-    <div id="bgm-control">
-      <button id="bgm-toggle" onclick="toggleBgm()" title="BGM ON/OFF">
-        <span class="material-icons" id="bgm-icon">volume_off</span>
-      </button>
-      <button id="bgm-slider-toggle" onclick="toggleBgmSlider()">▲</button>
-      <input type="range" id="bgm-slider" min="0" max="100" value="8" oninput="setBgmVolume(this.value)">
-    </div>
-
     <script>
       /* ═══════════════════════════════════════════
          GAS Web App URL
       ═══════════════════════════════════════════ */
-      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxDEb1rJ87VNSQk8U_o8JzjUr8yKtp2zw8C8p3XxLOFBMqczKn7ulBu-XbTQzLuY7Jo/exec";
+      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby4ZsCuKOE76ZCQpr90V-UYZlsRUX-YbM9Sk_auWuIEl7u8Q00RsRvTReRLnV1Db41n/exec";
 
       /* ═══════════════════════════════════════════
          SYNAPSE BACKGROUND (vanilla JS canvas)
@@ -745,10 +836,16 @@
         for (let i = e.resultIndex; i < e.results.length; ++i) {
           if (e.results[i].isFinal) transcript += e.results[i][0].transcript;
         }
-        if (transcript) {
-          textInput.value += (textInput.value ? "\n" : "") + transcript;
-          autoResize(textInput);
+        if (!transcript) return;
+
+        // 音声「送信」で送信トリガー
+        if (/^送信[。、！!]*$/.test(transcript.trim())) {
+          handleSend();
+          return;
         }
+
+        textInput.value += (textInput.value ? "\n" : "") + transcript;
+        autoResize(textInput);
       };
       recognition.onerror = (e) => addBubble("⚠️ マイクエラー: " + e.error, 'system');
 
@@ -835,11 +932,7 @@
 
       function autoResize(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
       textInput.addEventListener('input', function() { autoResize(this); });
-
-      // Enter to send (Shift+Enter for newline)
-      textInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
-      });
+      // Enter は改行のみ。送信は→ボタン or 音声「送信」
     </script>
   </body>
 </html>

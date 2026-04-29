@@ -921,11 +921,12 @@
         const text = textInput.value.trim();
         if (!text) return;
         if (isRecording) recognition.stop();
+        clearTimeout(silenceTimer);
         addBubble(text, 'user');
         textInput.value = "";
         textInput.style.height = 'auto';
         conversationHistory += `[Rikki]: ${text}\n`;
-        if (aiToggle.checked) requestAiReply(text);
+        // GASへの送信は「会話ログを保存して終了」ボタンのみ
       }
 
       function requestAiReply(userText) {

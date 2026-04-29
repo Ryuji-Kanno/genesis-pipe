@@ -4,20 +4,22 @@
     <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Genesis Pipe (External)</title>
+    <title>Genesis Pipe (Deep Space)</title>
+    <!-- マテリアルアイコンの読み込み -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-      /* --- 背景：神聖なオーロラグラデーション --- */
+      /* --- 背景：深宇宙のオーロラグラデーション --- */
       body { 
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
         margin: 0; 
         display: flex; 
         flex-direction: column; 
         height: 100vh; 
-        /* 近未来的なグラデーション背景 */
-        background: linear-gradient(-45deg, #e0eafc, #cfdef3, #e2e2e2, #f5f7fa);
+        /* 宇宙の深淵を感じさせるダークグラデーション */
+        background: linear-gradient(-45deg, #0f172a, #020617, #1e1b4b, #000000);
         background-size: 400% 400%;
-        animation: gradientBG 15s ease infinite;
+        animation: gradientBG 20s ease infinite;
+        color: #e2e8f0; /* 全体的な基本文字色を明るく */
       }
       @keyframes gradientBG {
         0% { background-position: 0% 50%; }
@@ -25,13 +27,14 @@
         100% { background-position: 0% 50%; }
       }
 
-      /* --- グラスモーフィズム共通設定（すりガラス効果） --- */
+      /* --- グラスモーフィズム共通設定（ダークすりガラス） --- */
       .glass-panel {
-        background: rgba(255, 255, 255, 0.45);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.6);
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       }
 
       /* --- ヘッダー --- */
@@ -42,117 +45,133 @@
         align-items: center; 
         z-index: 10; 
       }
-      .title { font-weight: 700; color: #1e88e5; display: flex; align-items: center; gap: 5px; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
-      .switch-container { display: flex; align-items: center; font-size: 12px; color: #555; gap: 8px; font-weight: bold; }
+      /* ネオンブルーのタイトル */
+      .title { 
+        font-weight: 800; 
+        color: #00e5ff; 
+        display: flex; 
+        align-items: center; 
+        gap: 6px; 
+        text-shadow: 0 0 5px rgba(0, 229, 255, 0.4), 0 0 10px rgba(0, 229, 255, 0.2); 
+        letter-spacing: 1px;
+      }
+      .switch-container { display: flex; align-items: center; font-size: 12px; color: #94a3b8; gap: 8px; font-weight: bold; }
       
-      /* スイッチUI */
+      /* スイッチUI (ダークテーマ対応) */
       .switch { position: relative; display: inline-block; width: 44px; height: 26px; }
       .switch input { opacity: 0; width: 0; height: 0; }
-      .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.6); border: 1px solid rgba(0,0,0,0.1); transition: .3s; border-radius: 34px; }
-      .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-      input:checked + .slider { background-color: rgba(52, 199, 89, 0.8); border-color: transparent; }
-      input:checked + .slider:before { transform: translateX(18px); }
+      .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.1); transition: .3s; border-radius: 34px; }
+      .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; background-color: #e2e8f0; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+      input:checked + .slider { background-color: rgba(0, 229, 255, 0.6); border-color: transparent; }
+      input:checked + .slider:before { transform: translateX(18px); background-color: #fff; box-shadow: 0 0 8px rgba(0, 229, 255, 0.8); }
 
       /* --- チャットエリア --- */
-      #chat-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+      #chat-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 14px; }
       
       /* バブル共通 */
-      .bubble { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 15px; line-height: 1.5; word-wrap: break-word; letter-spacing: 0.02em; }
+      .bubble { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 15px; line-height: 1.6; word-wrap: break-word; letter-spacing: 0.03em; }
       
-      /* Rikki (User) のバブル：クリアなブルーのガラス */
+      /* Rikki (User) のバブル：発光するクリアブルー */
       .bubble.user { 
         align-self: flex-end;   
-        background: rgba(33, 150, 243, 0.85); 
-        color: white; 
+        background: rgba(14, 165, 233, 0.4); 
+        color: #ffffff; 
         border-bottom-right-radius: 4px; 
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        box-shadow: 0 4px 15px rgba(33, 150, 243, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2);
+        border: 1px solid rgba(14, 165, 233, 0.5);
       }
       
-      /* Titan (AI) のバブル：純白のすりガラス */
+      /* Titan (AI) のバブル：深淵なる宇宙の色（チカチカしない） */
       .bubble.titan { 
         align-self: flex-start; 
-        background: rgba(255, 255, 255, 0.65); 
-        color: #2c3e50; 
+        background: rgba(30, 41, 59, 0.7); 
+        color: #f1f5f9; 
         border-bottom-left-radius: 4px; 
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.15);
       }
       
-      /* システムメッセージ */
+      /* システムメッセージ：ステルスモード */
       .bubble.system { 
         align-self: center; 
-        background: rgba(0,0,0,0.06); 
-        color: #555; 
+        background: rgba(0, 0, 0, 0.4); 
+        color: #94a3b8; 
         font-size: 12px; 
-        padding: 6px 12px; 
-        border-radius: 12px; 
+        padding: 6px 14px; 
+        border-radius: 20px; 
         margin: 5px 0; 
-        backdrop-filter: blur(4px);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
       }
 
       /* --- フッターエリア --- */
-      .footer { padding: 10px; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid rgba(255,255,255,0.4); }
+      .footer { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
       
-      /* 保存ボタン：クリスタルオレンジ */
+      /* 保存ボタン：紺色のすりガラス */
       #save-area { padding-bottom: 5px; }
       #save-btn { 
         width: 100%; padding: 12px; 
-        background: rgba(255, 149, 0, 0.85); 
-        color: white; border: 1px solid rgba(255,255,255,0.4); 
+        background: rgba(30, 58, 138, 0.6); /* 紺色の半透明 */
+        color: #ffffff; 
+        border: 1px solid rgba(255, 255, 255, 0.2); 
         border-radius: 12px; font-weight: bold; cursor: pointer; 
-        display: flex; justify-content: center; align-items: center; gap: 5px; 
-        backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-        box-shadow: 0 4px 10px rgba(255, 149, 0, 0.2);
+        display: flex; justify-content: center; align-items: center; gap: 6px; 
+        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         transition: 0.3s;
+        letter-spacing: 1px;
       }
-      #save-btn:active { transform: scale(0.98); }
+      #save-btn:active { transform: scale(0.98); background: rgba(30, 58, 138, 0.8); }
 
       /* 入力エリア */
-      .input-row { display: flex; gap: 8px; align-items: flex-end; }
+      .input-row { display: flex; gap: 10px; align-items: flex-end; }
       #text-input { 
-        flex: 1; padding: 12px 16px; border-radius: 20px; 
-        background: rgba(255, 255, 255, 0.5); 
-        border: 1px solid rgba(255, 255, 255, 0.8); 
-        color: #333; font-size: 16px; line-height: 1.4; max-height: 100px; resize: none; outline: none; 
-        backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        flex: 1; padding: 14px 16px; border-radius: 20px; 
+        background: rgba(15, 23, 42, 0.6); 
+        border: 1px solid rgba(255, 255, 255, 0.2); 
+        color: #f8fafc; font-size: 16px; line-height: 1.5; max-height: 100px; resize: none; outline: none; 
+        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
       }
-      #text-input::placeholder { color: #888; }
+      #text-input::placeholder { color: #64748b; }
       
       /* ボタン群 */
       .icon-btn { 
-        width: 46px; height: 46px; border-radius: 50%; border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; 
+        width: 48px; height: 48px; border-radius: 50%; border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; 
       }
       #send-btn { 
-        background: linear-gradient(135deg, #42a5f5, #1e88e5); 
-        color: white; box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3); 
+        background: linear-gradient(135deg, #0ea5e9, #0284c7); 
+        color: white; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4); 
       }
       #send-btn:active { transform: scale(0.92); }
       
+      /* マイクボタン：非アクティブ時はダークすりガラス */
       #mic-btn { 
-        background: rgba(255, 255, 255, 0.6); color: #1e88e5; border: 1px solid rgba(255, 255, 255, 0.8);
+        background: rgba(30, 41, 59, 0.8); color: #00e5ff; border: 1px solid rgba(255, 255, 255, 0.15);
         backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
       }
+      /* マイク録音中：非常事態（レッド）の発光 */
       #mic-btn.recording { 
-        background: rgba(255, 59, 48, 0.85); color: white; border-color: transparent; 
+        background: rgba(239, 68, 68, 0.9); color: white; border-color: transparent; 
         animation: pulse 1.5s infinite; 
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
       }
-      @keyframes pulse { 0% {box-shadow: 0 0 0 0 rgba(255,59,48,0.5);} 70% {box-shadow: 0 0 0 10px rgba(255,59,48,0);} 100% {box-shadow: 0 0 0 0 rgba(255,59,48,0);} }
+      @keyframes pulse { 0% {box-shadow: 0 0 0 0 rgba(239,68,68,0.6);} 70% {box-shadow: 0 0 0 15px rgba(239,68,68,0);} 100% {box-shadow: 0 0 0 0 rgba(239,68,68,0);} }
 
       /* タイピングアニメーション */
       .typing-indicator { display: flex; gap: 4px; padding: 5px; }
-      .dot { width: 6px; height: 6px; background: #888; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+      .dot { width: 6px; height: 6px; background: #94a3b8; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
       @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
     </style>
   </head>
   <body>
     <div class="header glass-panel">
-      <div class="title"><span class="material-icons" style="color: #2196F3;">flight</span> Genesis Pipe (External)</div>
+      <!-- 🚀 アイコンをロケットに変更し、ネオンカラーを適用 -->
+      <div class="title"><span class="material-icons" style="color: #00e5ff;">rocket_launch</span> Genesis Pipe</div>
       <div class="switch-container">
         <span id="mode-label">記録</span>
         <label class="switch">
@@ -163,14 +182,14 @@
     </div>
 
     <div id="chat-area">
-      <div class="bubble titan">【外部パイプ：音声フル稼働】<br>システムは原因側にあります。マイクで直接あなたの言葉を刻んでください。</div>
+      <div class="bubble system">システムは深宇宙（原因側）に展開されました。マイクで言葉を刻んでください。</div>
     </div>
 
     <div class="footer glass-panel">
       <div id="save-area"><button id="save-btn" onclick="saveConversation()"><span class="material-icons">save</span> 会話ログを保存して終了</button></div>
       <div class="input-row">
         <button id="mic-btn" class="icon-btn" onclick="toggleRecording()"><span class="material-icons">mic</span></button>
-        <textarea id="text-input" rows="1" placeholder="入力..."></textarea>
+        <textarea id="text-input" rows="1" placeholder="思考を入力..."></textarea>
         <button id="send-btn" class="icon-btn" onclick="handleSend()"><span class="material-icons">send</span></button>
       </div>
     </div>
@@ -191,7 +210,7 @@
 
       function toggleRecording() { if (!isRecording) { recognition.start(); } else { recognition.stop(); } }
       recognition.onstart = () => { isRecording = true; micBtn.classList.add('recording'); textInput.placeholder = "音声認識中..."; };
-      recognition.onend = () => { isRecording = false; micBtn.classList.remove('recording'); textInput.placeholder = "入力..."; };
+      recognition.onend = () => { isRecording = false; micBtn.classList.remove('recording'); textInput.placeholder = "思考を入力..."; };
       recognition.onresult = (e) => {
         let newTranscript = "";
         for (let i = e.resultIndex; i < e.results.length; ++i) { if (e.results[i].isFinal) newTranscript += e.results[i][0].transcript; }
@@ -208,11 +227,7 @@
         conversationHistory += `[Rikki]: ${text}\n`;
         
         if (aiToggle.checked) { 
-          // AIモード：AIの返答をもらうためだけに通信する
           requestAiReply(text); 
-        } else { 
-          // 記録モード：GASへは飛ばさず、ローカルに溜め込むだけにする
-          // saveToGas("save", text); ← ここを削除しました
         }
       }
 
@@ -230,14 +245,13 @@
           addBubble("⚠️ 保存する会話がありません", 'system');
           return;
         }
-        addBubble("💾 全会話を保存中...", 'system');
+        addBubble("💾 宇宙のアーカイブへ保存中...", 'system');
         saveToGas("save", conversationHistory, null, () => {
           addBubble("✅ 保存完了。セッションをリセットします。", 'system');
-          conversationHistory = ""; // 送信後に履歴をクリア
+          conversationHistory = ""; 
         });
       }
 
-      // 🌐 GAS通信用コアエンジン (完全同期版)
       function saveToGas(type, text, history = null, callback = null) {
         if (WEB_APP_URL.indexOf("ここに") !== -1) { alert("WEB_APP_URLを設定してください"); return; }
         
@@ -272,7 +286,6 @@
       function toggleMode() {
         const isOn = aiToggle.checked;
         document.getElementById('mode-label').innerText = isOn ? "AI対話" : "記録";
-        // 保存ボタンは常時表示なので、ここでの表示切り替えを削除しました
       }
       function addBubble(text, type) {
         const div = document.createElement('div'); div.className = `bubble ${type}`; div.innerHTML = text.replace(/\n/g, '<br>');

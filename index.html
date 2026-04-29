@@ -204,11 +204,15 @@
         border: 1px solid rgba(240,192,64,0.15);
         color: var(--text-primary);
         font-size: 15px; line-height: 1.5;
-        max-height: 100px; resize: none; outline: none;
+        height: auto;
+        min-height: 50px;
+        max-height: 45vh;
+        overflow-y: auto;
+        resize: none; outline: none;
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         box-shadow: inset 0 2px 6px rgba(0,0,0,0.5);
-        transition: border-color 0.2s;
+        transition: border-color 0.2s, height 0.15s ease;
       }
       #text-input:focus { border-color: rgba(240,192,64,0.35); }
       #text-input::placeholder { color: var(--text-secondary); }
@@ -265,76 +269,28 @@
         40%            { transform: scale(1);   opacity: 1; }
       }
 
-      /* ── BGM Control (bottom-left, fixed) ── */
-      #bgm-control {
-        position: fixed;
-        bottom: 80px;
-        left: 14px;
-        z-index: 50;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 7px 12px;
-        border-radius: 9999px;
-        background: var(--glass-bg);
-        backdrop-filter: var(--glass-blur);
-        -webkit-backdrop-filter: var(--glass-blur);
-        border: 1px solid var(--glass-border);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-      }
+      /* 旧 fixed 版 BGM Control は削除済み → 下部インライン版を使用 */
 
-      #bgm-toggle {
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: var(--text-primary);
-        display: flex;
-        align-items: center;
-        padding: 0;
-        transition: color 0.2s;
-      }
-      #bgm-toggle:hover { color: var(--gold-400); }
-      #bgm-toggle .material-icons { font-size: 16px; }
-
-      #bgm-slider-toggle {
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: var(--text-secondary);
-        font-size: 10px;
-        line-height: 1;
-        padding: 0;
-        transition: opacity 0.2s;
-      }
-      #bgm-slider-toggle:hover { color: var(--text-primary); }
-
-      #bgm-slider {
-        display: none;
-        width: 72px;
-        accent-color: var(--gold-400);
-      }
-      #bgm-slider.open { display: block; }
-
-      /* ── ① タイトル ネオン明滅 ── */
+      /* ── ① タイトル ネオン明滅（白グロウ・文字色はゴールドのまま） ── */
       @keyframes neon-flicker {
         0%,  8%,  10%, 45%, 48%, 100% {
           color: var(--gold-400);
           text-shadow:
-            0 0 4px rgba(255,255,200,0.6),
-            0 0 10px var(--gold-400),
-            0 0 22px var(--gold-400),
-            0 0 44px var(--gold-500);
+            0 0 3px rgba(255,255,255,1),
+            0 0 9px rgba(255,255,255,0.85),
+            0 0 20px rgba(255,255,255,0.5),
+            0 0 40px rgba(255,255,255,0.25);
         }
         4% {
-          color: rgba(240,192,64,0.35);
+          color: var(--gold-400);
           text-shadow: none;
         }
         6% {
-          color: rgba(240,192,64,0.8);
-          text-shadow: 0 0 6px var(--gold-400);
+          color: var(--gold-400);
+          text-shadow: 0 0 5px rgba(255,255,255,0.5);
         }
         46% {
-          color: rgba(240,192,64,0.4);
+          color: var(--gold-400);
           text-shadow: none;
         }
       }
@@ -496,7 +452,7 @@
       /* ═══════════════════════════════════════════
          GAS Web App URL
       ═══════════════════════════════════════════ */
-      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby4ZsCuKOE76ZCQpr90V-UYZlsRUX-YbM9Sk_auWuIEl7u8Q00RsRvTReRLnV1Db41n/exec";
+      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxDEb1rJ87VNSQk8U_o8JzjUr8yKtp2zw8C8p3XxLOFBMqczKn7ulBu-XbTQzLuY7Jo/exec";
 
       /* ═══════════════════════════════════════════
          SYNAPSE BACKGROUND (vanilla JS canvas)

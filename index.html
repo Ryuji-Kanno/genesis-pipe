@@ -3,7 +3,7 @@
   <head>
     <base target="_top">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Genesis Pipe</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
@@ -34,7 +34,9 @@
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         display: flex;
         flex-direction: column;
-        height: 100vh;
+        height: 100vh;                       /* 最終フォールバック */
+        height: calc(var(--vh, 1vh) * 100); /* JSフォールバック（iOS 15.3以前） */
+        height: 100dvh;                      /* iOS 15.4+ / Android Chrome（上書き優先） */
         background: var(--navy-950);
         color: var(--text-primary);
         overflow: hidden;
@@ -250,10 +252,13 @@
         position: relative;
         z-index: 10;
         padding: 12px 14px;
+        /* iOSホームインジケーター分の余白を確保 */
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
         display: flex;
         flex-direction: column;
         gap: 10px;
         border-top: 1px solid rgba(255,255,255,0.04);
+        flex-shrink: 0;
       }
 
       /* #save-btn は下部の @property ブロックで定義 */
@@ -533,6 +538,16 @@
       /* ═══════════════════════════════════════════
          GAS Web App URL
       ═══════════════════════════════════════════ */
+      /* iOS 15.3以前: 100dvh 非対応端末向け --vh フォールバック */
+      (function() {
+        function setVH() {
+          document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+        }
+        setVH();
+        window.addEventListener('resize', setVH);
+        window.addEventListener('orientationchange', function() { setTimeout(setVH, 100); });
+      })();
+
       const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxDEb1rJ87VNSQk8U_o8JzjUr8yKtp2zw8C8p3XxLOFBMqczKn7ulBu-XbTQzLuY7Jo/exec";
 
       /* ═══════════════════════════════════════════

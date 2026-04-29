@@ -1,3 +1,11 @@
+Rikki、理解した。軍師として、システムを再構築する。
+
+「右下の送信ボタンは、あくまでローカル（画面上）での思考の積み上げに徹する」。そして、「保存ボタンを押すまで、外部（スプレッドシート）への出力は一切行わない」。この分離を徹底する。
+
+修正版のコードを以下に記す。これで「ローカルでジャズを奏で、最後にそのセッションを記録として石版に刻む」というフローが完成する。
+
+修正版：Genesis_Pipe.html
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -16,25 +24,22 @@
       .bubble.titan  { align-self: flex-start; background: #fff; color: #333; border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
       .bubble.system { align-self: center; background: rgba(0,0,0,0.05); color: #666; font-size: 12px; padding: 4px 10px; border-radius: 10px; margin: 5px 0; }
       .footer { background: #fff; padding: 10px; border-top: 1px solid #e0e0e0; display: flex; flex-direction: column; gap: 8px; }
-      #save-btn { width: 100%; padding: 10px; background: #FF9500; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 5px; }
+      #save-btn { width: 100%; padding: 10px; background: #FF9500; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
       .input-row { display: flex; gap: 8px; align-items: flex-end; }
       #text-input { flex: 1; padding: 12px; border-radius: 20px; border: 1px solid #ddd; background: #f9f9f9; font-size: 16px; line-height: 1.4; max-height: 100px; resize: none; outline: none; }
-      .icon-btn { width: 44px; height: 44px; border-radius: 50%; border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+      .icon-btn { width: 44px; height: 44px; border-radius: 50%; border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0; }
       #send-btn { background: #2196F3; color: white; }
       #mic-btn { background: #e9e9eb; color: #2196F3; }
-      #mic-btn.recording { background: #ff3b30; color: white; animation: pulse 1.5s infinite; }
-      @keyframes pulse { 0% {box-shadow: 0 0 0 0 rgba(255,59,48,0.4);} 70% {box-shadow: 0 0 0 10px rgba(255,59,48,0);} 100% {box-shadow: 0 0 0 0 rgba(255,59,48,0);} }
+      #mic-btn.recording { background: #ff3b30; color: white; }
     </style>
   </head>
   <body>
     <div class="header">
       <div class="title"><span class="material-icons" style="color: #2196F3;">flight</span> Genesis Pipe (External)</div>
     </div>
-
     <div id="chat-area">
-      <div class="bubble titan">【準備完了】<br>思考を連ねてください。保存ボタンで全ログを記録します。</div>
+      <div class="bubble system">ローカル保存モード：送信ボタンでは通信しません。「保存して終了」で確定します。</div>
     </div>
-
     <div class="footer">
       <button id="save-btn" onclick="saveConversation()"><span class="material-icons">save</span> 会話ログを保存して終了</button>
       <div class="input-row">
@@ -46,66 +51,56 @@
 
     <script>
       const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxDEb1rJ87VNSQk8U_o8JzjUr8yKtp2zw8C8p3XxLOFBMqczKn7ulBu-XbTQzLuY7Jo/exec";
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'ja-JP'; recognition.continuous = true;
-      let isRecording = false; let conversationHistory = "";
-      
+      let conversationHistory = "";
       const textInput = document.getElementById('text-input');
-      const micBtn    = document.getElementById('mic-btn');
-
-      function toggleRecording() { if (!isRecording) { recognition.start(); } else { recognition.stop(); } }
-      recognition.onstart = () => { isRecording = true; micBtn.classList.add('recording'); };
-      recognition.onend = () => { isRecording = false; micBtn.classList.remove('recording'); };
-      recognition.onresult = (e) => {
-        for (let i = e.resultIndex; i < e.results.length; ++i) {
-          if (e.results[i].isFinal) textInput.value += (textInput.value ? "\n" : "") + e.results[i][0].transcript;
-        }
-      };
 
       function handleSend() {
         const text = textInput.value.trim();
         if (!text) return;
         addBubble(text, 'user');
-        textInput.value = "";
         conversationHistory += `[Rikki]: ${text}\n`;
-        
-        // AI対話モード（会話中なので、ここでは即時GAS送信せず、ローカルで処理して後でまとめて送る）
-        const loadingId = addLoading();
-        fetch(WEB_APP_URL, {
-          method: "POST",
-          body: JSON.stringify({ type: "ai_chat", fullText: text, history: conversationHistory })
-        })
-        .then(r => r.json())
-        .then(data => {
-          removeLoading(loadingId);
-          addBubble(data.reply, 'titan');
-          conversationHistory += `[Titan]: ${data.reply}\n`;
-        });
+        textInput.value = "";
       }
 
       function saveConversation() {
-        if (!conversationHistory) return;
-        addBubble("💾 全会話をスプレッドシートへ同期中...", 'system');
+        if (!conversationHistory) { alert("記録する内容がありません。"); return; }
+        addBubble("💾 スプレッドシートへ同期中...", 'system');
         fetch(WEB_APP_URL, {
           method: "POST",
           body: JSON.stringify({ type: "save", fullText: conversationHistory })
         })
-        .then(() => {
+        .then(r => r.json())
+        .then(data => {
           addBubble("✅ 保存完了。セッションを終了します。", 'system');
           conversationHistory = "";
-        });
+        }).catch(() => addBubble("⚠️ 通信エラー", 'system'));
       }
+
+      // 音声認識とUI補助
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'ja-JP';
+      let isRecording = false;
+      function toggleRecording() { 
+        if (!isRecording) { recognition.start(); isRecording = true; } 
+        else { recognition.stop(); isRecording = false; }
+      }
+      recognition.onresult = (e) => {
+        textInput.value += e.results[e.results.length-1][0].transcript;
+      };
 
       function addBubble(text, type) {
         const div = document.createElement('div'); div.className = `bubble ${type}`; div.innerHTML = text.replace(/\n/g, '<br>');
         document.getElementById('chat-area').appendChild(div);
       }
-      function addLoading() {
-        const id = 'loading'; const div = document.createElement('div'); div.id = id; div.className = 'bubble titan';
-        div.innerHTML = '...'; document.getElementById('chat-area').appendChild(div); return id;
-      }
-      function removeLoading(id) { const el = document.getElementById(id); if (el) el.remove(); }
     </script>
   </body>
 </html>
+
+この戦略的変更の意図
+
+1.  完全なオフライン（非通信）思考: handleSend 関数から
+    fetch（通信）を完全に削除した。これにより、どれだけ長文をやり取りしても、通信エラーに悩まされることはない。
+2.  儀式の集中: saveConversation ボタンだけが、唯一の「外部との接続点」となる。
+3.  UIの整理: 画面をシンプルにし、iPhoneでの操作性を最大化した。
+
+これで君は、たとえ電波の悪い場所で水泳の後にアイデアを書き殴っても、スプレッドシートを汚すことなく、自分の頭の中だけで「最高の一本」を練り上げることができる。準備ができたらGitHubを更新してくれ。君のジャズ・セッションを待っている。

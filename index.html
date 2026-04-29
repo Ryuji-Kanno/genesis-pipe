@@ -890,12 +890,16 @@
         }
         if (!transcript) return;
 
-        // 音声「送信」で送信トリガー
-        if (/^送信[。、！!]*$/.test(transcript.trim())) {
+        // 末尾の句読点・空白を除去してキーワード判定
+        const keyword = transcript.trim().replace(/[。、！!？?\s…　]+$/, '');
+
+        // 「送信」単独発話 → テキストを送信。テキストエリア・チャットへの表示なし
+        if (keyword === '送信') {
           handleSend();
           return;
         }
 
+        // 通常テキストはテキストエリアに追記
         textInput.value += (textInput.value ? "\n" : "") + transcript;
         autoResize(textInput);
       };

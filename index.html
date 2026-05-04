@@ -548,7 +548,10 @@
         window.addEventListener('orientationchange', function() { setTimeout(setVH, 100); });
       })();
 
-      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxDEb1rJ87VNSQk8U_o8JzjUr8yKtp2zw8C8p3XxLOFBMqczKn7ulBu-XbTQzLuY7Jo/exec";
+      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby4ZsCuKOE76ZCQpr90V-UYZlsRUX-YbM9Sk_auWuIEl7u8Q00RsRvTReRLnV1Db41n/exec";
+
+      // Vercel の本番URLを設定（例: https://ai-partner-sync-web.vercel.app）
+      const NEXT_API_BASE_URL = "https://ai-partner-sync-web.vercel.app";
 
       /* ═══════════════════════════════════════════
          SYNAPSE BACKGROUND (vanilla JS canvas)
@@ -927,14 +930,19 @@
         textInput.style.height = 'auto';
         conversationHistory += `[Rikki]: ${text}\n`;
         // GASへの送信は「会話ログを保存して終了」ボタンのみ
+        // AI対話モードのときだけTitanに送信
+        if (aiToggle.checked) {
+          requestAiReply(text);
+        }
       }
 
       function requestAiReply(userText) {
         const loadingId = addLoading();
         saveToGas("ai_chat", userText, conversationHistory, (data) => {
           removeLoading(loadingId);
+          const reply = (data && data.reply) ? data.reply : '（返答を受信できませんでした）';
           addBubble(data.reply, 'titan');
-          conversationHistory += `[Titan]: ${data.reply}\n`;
+          conversationHistory += `[Titan]: ${reply}\n`;
         });
       }
 
@@ -944,19 +952,55 @@
           return;
         }
         addBubble("アーカイブへ送信中…", 'system');
-        saveToGas("save", conversationHistory, null, () => {
-          addBubble("✅ 保存完了。セッションをリセットします。", 'system');
-          conversationHistory = "";
+
+        const snapshot = conversationHistory; // 非同期処理中に変わらないようコピー
+        const uid = new URLSearchParams(window.location.search).get('uid');
+
+        // 1. Google Sheets (GAS)
+        saveToGas("save", snapshot, null, () => {
+          addBubble("✅ Genesis Sheet に記録完了。", 'system');
+
+          // 2. Firestore genesis_logs（uid が URL パラメータで渡されている場合のみ）
+          if (uid && NEXT_API_BASE_URL) {
+            fetch(`${NEXT_API_BASE_URL}/api/genesis`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ uid, content: snapshot, oracleEnabled: false }),
+            })
+            .then(r => r.json())
+            .then(() => {
+              addBubble("📚 genesis_log（Firestore）にも記録完了。セッションをリセットします。", 'system');
+              conversationHistory = "";
+            })
+            .catch(err => {
+              console.warn('[Genesis] Firestore sync error:', err);
+              addBubble("⚠️ Firestore 記録に失敗（Sheets のみ保存済）。セッションをリセットします。", 'system');
+              conversationHistory = "";
+            });
+          } else {
+            addBubble("✅ 保存完了。セッションをリセットします。", 'system');
+            conversationHistory = "";
+          }
         });
       }
 
       function saveToGas(type, text, history = null, callback = null) {
-        if (WEB_APP_URL.indexOf("ここに") !== -1) { alert("WEB_APP_URLを設定してください"); return; }
+        // 安全装置：URLが /exec で終わっているかチェック
+        if (!WEB_APP_URL.includes("/macros/s/")) { 
+          alert("⚠️ Titanからの警告: WEB_APP_URLが /exec で終わるデプロイURLになっていないぞ！"); 
+          return; 
+        }
+
         fetch(WEB_APP_URL, {
           method: "POST",
+          redirect: "follow", // 必須：GASのリダイレクトを追従して正しいレスポンスを掴み取る
+          headers: {
+            // 必須：CORSプレフライト(OPTIONS)を回避するため、あえて text/plain で送る
+            "Content-Type": "text/plain;charset=utf-8" 
+          },
           body: JSON.stringify({ type, fullText: text, history }),
         })
-        .then(r => (r.ok || r.type === 'opaque') ? r.json() : Promise.reject('network'))
+        .then(r => r.json()) // opaqueではなく、正々堂々とJSONとして受け取る
         .then(data => {
           if (callback) {
             callback(data);
@@ -965,13 +1009,14 @@
             if (data.oracle)              addBubble("🔮 " + data.oracle, 'titan');
           }
         })
-        .catch(() => {
-          addBubble(
-            type === "ai_chat"
-              ? "（返信はスプレッドシートをご確認ください）"
-              : "✅ 記録成功",
-            'system'
-          );
+        .catch(err => {
+          console.error("Titan Comms Error:", err);
+          // エラー時も処理が止まらないよう、ユーザーに明示する
+          if (callback) {
+            callback({ reply: '（通信エラーだ。パイプの接続を確認してくれ）' });
+          } else {
+            addBubble("⚠️ 通信エラー: 記録に失敗した。コンソールを確認してくれ", 'system');
+          }
         });
       }
 

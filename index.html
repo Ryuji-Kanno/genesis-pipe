@@ -3,86 +3,190 @@
   <head>
     <base target="_top">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Genesis Pipe</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-      /* ── Design System (V3.9継承) ── */
+      /* ── Design System: AI PARTNER SYNC ── */
       :root {
-        --navy-950: #020817; --navy-900: #0a0f1e; --navy-800: #0d1526;
-        --gold-400: #f0c040; --gold-glow: rgba(240,192,64,0.15);
-        --glass-bg: rgba(13,21,38,0.65); --glass-border: rgba(240,192,64,0.18);
-        --text-primary: #e8edf8; --text-secondary: #8899bb;
+        --navy-950: #020817;
+        --navy-900: #0a0f1e;
+        --navy-800: #0d1526;
+        --navy-700: #111c35;
+        --navy-600: #162244;
+        --navy-500: #1e3a6e;
+        --gold-400: #f0c040;
+        --gold-500: #d4a017;
+        --gold-600: #b8860b;
+        --gold-glow: rgba(240,192,64,0.15);
+        --gold-glow-strong: rgba(240,192,64,0.35);
+        --glass-bg: rgba(13,21,38,0.65);
+        --glass-border: rgba(240,192,64,0.18);
+        --glass-blur: blur(16px);
+        --text-primary: #e8edf8;
+        --text-secondary: #8899bb;
+        --text-gold: #f0c040;
       }
+
       * { box-sizing: border-box; margin: 0; padding: 0; }
-      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; height: 100dvh; background: var(--navy-950); color: var(--text-primary); overflow: hidden; -webkit-text-size-adjust: 100%; }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        height: calc(var(--vh, 1vh) * 100);
+        height: 100dvh;
+        background: var(--navy-950);
+        color: var(--text-primary);
+        overflow: hidden;
+      }
+
+      /* ── Backgrounds ── */
       #synapse-canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.5; }
       #aurora-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 1; background: radial-gradient(ellipse 80% 40% at 50% 0%, rgba(30,58,110,0.45) 0%, transparent 70%); }
-      .glass { background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); }
-      .header { position: relative; z-index: 10; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+      .glass { background: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-border); }
+
+      /* ── Header ── */
+      .header {
+        position: relative; z-index: 10; padding: 14px 18px;
+        display: flex; justify-content: space-between; align-items: center;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+      }
       .title-logo { height: 34px; width: auto; display: block; }
-      #logo-fallback { display: none; font-weight: bold; color: var(--gold-400); font-size: 18px; letter-spacing: 0.05em; }
-      .header-actions { display: flex; align-items: center; gap: 20px; }
-      #synthesis-trigger { position: relative; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; }
-      #synthesis-trigger::before { content: ""; position: absolute; width: 35px; height: 35px; background: radial-gradient(circle, rgba(240,192,64,0.4) 0%, rgba(240,192,64,0.1) 50%, transparent 75%); filter: blur(8px); border-radius: 50%; z-index: 0; animation: holy-pulse 3s infinite ease-in-out; }
-      #synthesis-trigger span { position: relative; z-index: 1; color: var(--gold-400) !important; font-size: 30px; }
-      #chat-area { position: relative; z-index: 10; flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
-      .bubble { max-width: 90%; padding: 12px 16px; border-radius: 18px; font-size: 16px; line-height: 1.5; }
-      .bubble.user { align-self: flex-end; background: rgba(30,58,138,0.5); border: 1px solid rgba(240,192,64,0.2); border-bottom-right-radius: 4px; }
-      .bubble.titan { align-self: flex-start; background: rgba(13,21,38,0.75); border: 1px solid rgba(240,192,64,0.14); border-bottom-left-radius: 4px; }
-      .bubble.system { align-self: center; background: rgba(0,0,0,0.35); font-size: 13px; padding: 5px 14px; border-radius: 20px; }
-      .typing-indicator { display: flex; gap: 4px; padding: 4px 0; }
-      .dot { width: 6px; height: 6px; background: var(--gold-400); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
-      @keyframes bounce { 0%, 80%, 100% { transform: scale(0); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
-      .footer { position: relative; z-index: 10; padding: 12px 14px; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 10px; border-top: 1px solid rgba(255,255,255,0.04); }
-      #save-area { flex: 1; padding: 1.5px; border-radius: 13px; animation: save-border-spin 7s linear infinite; background: conic-gradient(from var(--ba), rgba(240,192,64,0) 0%, rgba(255,250,160,1) 50%, rgba(240,192,64,0) 100%); }
-      #save-btn { width: 100%; padding: 13px; background: var(--navy-800); color: white; border: none; border-radius: 11.5px; font-weight: 700; font-size: 15px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 6px; }
-      .input-row { display: flex; gap: 10px; align-items: flex-end; }
-      #text-input { flex: 1; padding: 15px; border-radius: 20px; background: rgba(13,21,38,0.7); border: 1px solid rgba(240,192,64,0.15); color: white; font-size: 16px; resize: none; outline: none; min-height: 50px; }
-      .icon-btn { width: 48px; height: 48px; border-radius: 50%; border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; }
-      #send-btn { background: radial-gradient(circle at 36% 30%, #fffca0 0%, #f0c040 100%); color: var(--navy-950); }
-      #mic-btn { background: rgba(13,21,38,0.8); color: var(--gold-400); border: 1px solid var(--glass-border); }
-      #mic-btn.recording { background: #ef4444; color: white; }
-      #synthesis-overlay { position: fixed; bottom: -100%; left: 0; width: 100%; z-index: 100; padding: 25px; border-radius: 24px 24px 0 0; transition: bottom 0.4s cubic-bezier(0.16, 1, 0.3, 1); background: rgba(10,15,30,0.95); }
-      #synthesis-overlay.open { bottom: 0; }
-      .synthesis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-      .syn-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(240,192,64,0.1); border-radius: 15px; padding: 18px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; }
-      .switch-container { display: flex; align-items: center; font-size: 11px; color: #ffffff; gap: 8px; font-weight: 700; background: var(--glass-bg); border-radius: 9999px; padding: 5px 10px; }
+      .header-actions { display: flex; align-items: center; gap: 15px; }
+
+      /* 🆕 Synthesis Trigger */
+      #synthesis-trigger {
+        background: none; border: none; cursor: pointer; display: flex; align-items: center;
+        transition: transform 0.2s;
+      }
+      #synthesis-trigger:active { transform: scale(0.9); }
+
+      /* Toggle Switch */
+      @property --ta { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+      @keyframes toggle-border-spin { to { --ta: 360deg; } }
+      #switch-border {
+        padding: 1.5px; border-radius: 9999px; animation: toggle-border-spin 6s linear infinite;
+        display: inline-flex;
+        background: conic-gradient(from var(--ta), rgba(240,192,64,0) 0%, rgba(240,192,64,0) 38%, rgba(255,250,160,1) 46%, rgba(255,255,200,1) 50%, rgba(255,250,160,1) 54%, rgba(240,192,64,0) 62%, rgba(240,192,64,0) 100%);
+      }
+      .switch-container {
+        display: flex; align-items: center; font-size: 11px; color: #ffffff; gap: 8px; font-weight: 700;
+        background: var(--glass-bg); border-radius: 9999px; padding: 5px 10px;
+      }
       .switch { position: relative; display: inline-block; width: 44px; height: 26px; }
       .switch input { opacity: 0; width: 0; height: 0; }
       .slider { position: absolute; cursor: pointer; inset: 0; background: rgba(30,30,60,0.8); border: 1px solid rgba(255,255,255,0.12); transition: .3s; border-radius: 34px; }
-      .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; border-radius: 50%; background: #fff; transition: .3s; }
-      input:checked + .slider:before { transform: translateX(18px); background: #f0c040; }
+      .slider:before {
+        position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; border-radius: 50%;
+        background: radial-gradient(circle at 35% 32%, #fff 0%, #8c9bb9 100%); transition: .3s;
+      }
+      input:checked + .slider { background: rgba(180,130,0,0.5); }
+      input:checked + .slider:before { transform: translateX(18px); background: radial-gradient(circle at 35% 32%, #ffffdc 0%, #b48200 100%); }
+
+      /* ── Chat Area ── */
+      #chat-area { position: relative; z-index: 10; flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+      .bubble { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.65; }
+      .bubble.user { align-self: flex-end; background: rgba(30,58,138,0.5); border: 1px solid rgba(240,192,64,0.2); border-bottom-right-radius: 4px; }
+      .bubble.titan { align-self: flex-start; background: rgba(13,21,38,0.75); border: 1px solid rgba(240,192,64,0.14); border-bottom-left-radius: 4px; }
+      .bubble.system { align-self: center; background: rgba(0,0,0,0.35); font-size: 11px; padding: 5px 14px; border-radius: 20px; }
+
+      /* ── Footer ── */
+      .footer { position: relative; z-index: 10; padding: 12px 14px; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 10px; border-top: 1px solid rgba(255,255,255,0.04); }
+      .save-row { display: flex; align-items: center; gap: 10px; }
+      
+      /* BGM Control */
+      #bgm-control { display: flex; align-items: center; gap: 7px; padding: 8px 11px; border-radius: 9999px; background: var(--glass-bg); border: 1px solid var(--glass-border); }
+      #bgm-toggle { background: none; border: none; color: white; cursor: pointer; }
+      #bgm-slider { display: none; width: 60px; accent-color: var(--gold-400); }
+      #bgm-slider.open { display: block; }
+
+      /* Save Button with Border Spin */
       @property --ba { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
       @keyframes save-border-spin { to { --ba: 360deg; } }
-      @keyframes holy-pulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.3); opacity: 0.8; } }
+      #save-area { flex: 1; padding: 1.5px; border-radius: 13px; animation: save-border-spin 7s linear infinite; background: conic-gradient(from var(--ba), rgba(240,192,64,0) 0%, rgba(255,250,160,1) 50%, rgba(240,192,64,0) 100%); }
+      #save-btn { width: 100%; padding: 11px; background: var(--navy-800); color: white; border: none; border-radius: 11.5px; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 6px; }
+
+      /* Input row */
+      .input-row { display: flex; gap: 10px; align-items: flex-end; }
+      #text-input { flex: 1; padding: 13px 16px; border-radius: 20px; background: rgba(13,21,38,0.7); border: 1px solid rgba(240,192,64,0.15); color: white; font-size: 15px; resize: none; outline: none; min-height: 50px; max-height: 30vh; }
+      .icon-btn { width: 48px; height: 48px; border-radius: 50%; border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+      #send-btn { background: radial-gradient(circle at 36% 30%, #fffca0 0%, #f0c040 100%); color: var(--navy-950); }
+      #mic-btn { background: rgba(13,21,38,0.8); color: var(--gold-400); border: 1px solid var(--glass-border); }
+      #mic-btn.recording { background: #ef4444; color: white; animation: pulse-red 1.5s infinite; }
+      @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.6); } 70% { box-shadow: 0 0 0 14px rgba(239,68,68,0); } 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); } }
+
+      /* 🆕 Synthesis Overlay (Bottom Sheet) */
+      #synthesis-overlay {
+        position: fixed; bottom: -100%; left: 0; width: 100%; z-index: 100; padding: 25px;
+        border-top: 1px solid var(--glass-border); border-radius: 24px 24px 0 0;
+        transition: bottom 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        background: rgba(10,15,30,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      }
+      #synthesis-overlay.open { bottom: 0; }
+      .synthesis-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-weight: bold; color: var(--gold-400); }
+      .synthesis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+      .syn-card {
+        background: rgba(255,255,255,0.05); border: 1px solid rgba(240,192,64,0.1); border-radius: 15px; padding: 18px 10px;
+        display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; cursor: pointer;
+      }
+      .syn-card:active { background: var(--gold-glow); transform: scale(0.95); }
+      .syn-card .material-icons { font-size: 28px; color: var(--gold-400); }
+      .syn-card b { font-size: 14px; color: white; }
+      .syn-card small { font-size: 10px; color: var(--text-secondary); }
     </style>
   </head>
   <body>
+
     <canvas id="synapse-canvas"></canvas>
     <div id="aurora-overlay"></div>
+
+    <!-- Header -->
     <div class="header glass">
-      <div class="title" id="logo-container">
-        <img src="./Genesis_pipe_Logo.png" alt="Genesis Pipe" class="title-logo" id="main-logo" onerror="handleLogoError()">
-        <span id="logo-fallback">🚀GENESIS PIPE</span>
+      <div class="title">
+        <img src="./Genesis_pipe_Logo.png" alt="Genesis Pipe" class="title-logo">
       </div>
       <div class="header-actions">
-        <button id="synthesis-trigger" onclick="toggleSynthesisMenu()"><span class="material-icons">auto_awesome</span></button>
-        <div class="switch-container">
-          <span id="mode-label">記録</span>
-          <label class="switch"><input type="checkbox" id="ai-toggle" onchange="toggleMode()"><span class="slider"></span></label>
+        <!-- 🆕 Synthesis Button -->
+        <button id="synthesis-trigger" onclick="toggleSynthesisMenu()">
+          <span class="material-icons" style="color: var(--gold-400); font-size: 28px;">auto_awesome</span>
+        </button>
+        <div id="toggle-wrap">
+          <div class="switch-container">
+            <span id="mode-label">記録</span>
+            <div id="switch-border">
+              <label class="switch">
+                <input type="checkbox" id="ai-toggle" onchange="toggleMode()">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div id="chat-area"><div class="bubble system">叡智の記録を開始。王よ、言葉を刻んでください。</div></div>
-    <audio id="bgm-audio" src="./AI_PARTNER_SYNC_BGM.m4a" loop onerror="handleBgmError()"></audio>
+
+    <!-- Chat -->
+    <div id="chat-area">
+      <div class="bubble system">叡智の記録を開始します。王よ、言葉を刻んでください。</div>
+    </div>
+
+    <audio id="bgm-audio" src="./AI_PARTNER_SYNC_BGM.m4a" loop></audio>
+
+    <!-- Footer -->
     <div class="footer glass">
       <div class="save-row">
         <div id="bgm-control">
           <button id="bgm-toggle" onclick="toggleBgm()"><span class="material-icons" id="bgm-icon">volume_off</span></button>
-          <input type="range" id="bgm-slider" min="0" max="100" value="8" oninput="document.getElementById('bgm-audio').volume = this.value/100" style="width:50px;">
+          <button onclick="document.getElementById('bgm-slider').classList.toggle('open')" style="background:none;border:none;color:gray;font-size:10px;">▲</button>
+          <input type="range" id="bgm-slider" min="0" max="100" value="8" oninput="document.getElementById('bgm-audio').volume = this.value/100">
         </div>
-        <div id="save-area"><button id="save-btn" onclick="saveConversation()"><span class="material-icons">save</span>Genesis Sheetへ保存</button></div>
+        <div id="save-area">
+          <button id="save-btn" onclick="saveConversation()">
+            <span class="material-icons" style="font-size:18px;">save</span>
+            保存して終了
+          </button>
+        </div>
       </div>
       <div class="input-row">
         <button id="mic-btn" class="icon-btn" onclick="toggleRecording()"><span class="material-icons">mic</span></button>
@@ -90,37 +194,73 @@
         <button id="send-btn" class="icon-btn" onclick="handleSend()"><span class="material-icons">send</span></button>
       </div>
     </div>
+
+    <!-- 🆕 Synthesis Panel -->
     <div id="synthesis-overlay" class="glass">
+      <div class="synthesis-header">
+        <span>叡智の蒸留 (Synthesis)</span>
+        <button onclick="toggleSynthesisMenu()" style="background:none;border:none;color:white;"><span class="material-icons">close</span></button>
+      </div>
       <div class="synthesis-grid">
-        <div class="syn-card" onclick="openDatePick('Daily')"><span class="material-icons">today</span><b>今日のまとめ</b></div>
-        <div class="syn-card" onclick="openDatePick('Weekly')"><span class="material-icons">date_range</span><b>週のまとめ</b></div>
-        <div class="syn-card" onclick="openDatePick('Monthly')"><span class="material-icons">calendar_view_month</span><b>月のまとめ</b></div>
-        <div class="syn-card" onclick="openDatePick('Yearly')"><span class="material-icons">auto_stories</span><b>年のまとめ</b></div>
+        <div class="syn-card" onclick="openDatePick('Daily')"><span class="material-icons">today</span><b>今日のまとめ</b><small>本日のログを蒸留</small></div>
+        <div class="syn-card" onclick="openDatePick('Weekly')"><span class="material-icons">date_range</span><b>週のまとめ</b><small>直近7日間を俯瞰</small></div>
+        <div class="syn-card" onclick="openDatePick('Monthly')"><span class="material-icons">calendar_view_month</span><b>月のまとめ</b><small>月次サマリー</small></div>
+        <div class="syn-card" onclick="openDatePick('Yearly')"><span class="material-icons">auto_stories</span><b>年のまとめ</b><small>年次に昇華</small></div>
       </div>
     </div>
+
+    <!-- Hidden native pickers -->
     <input type="date" id="hidden-date" style="display:none;" onchange="executeSynthesis('date')">
     <input type="month" id="hidden-month" style="display:none;" onchange="executeSynthesis('month')">
 
     <script>
-      /* ════ 🆕 ユニバーサル通信エンジン (V4.0) ════ */
+      /* ════ 基本設定 ════ */
       const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby4ZsCuKOE76ZCQpr90V-UYZlsRUX-YbM9Sk_auWuIEl7u8Q00RsRvTReRLnV1Db41n/exec";
       let conversationHistory = "";
       let currentSynType = '';
 
-      // GitHubからでもGAS内部からでも共通で動くAPI関数
-      async function callTitanApi(type, payload) {
-        try {
-          const response = await fetch(WEB_APP_URL, {
-            method: "POST",
-            mode: "cors", // これがGitHub版で重要
-            body: JSON.stringify({ type: type, ...payload }),
-          });
-          return await response.json();
-        } catch (err) {
-          console.error("Titan Pipe Error:", err);
-          return { status: "error", reply: "（通信に失敗した。パイプの接続を確認してくれ）" };
+      /* ════ 1. 蒸留(Synthesis)ロジック ════ */
+      function toggleSynthesisMenu() { document.getElementById('synthesis-overlay').classList.toggle('open'); }
+      
+      function openDatePick(type) {
+        currentSynType = type;
+        if (type === 'Daily' || type === 'Weekly') { document.getElementById('hidden-date').showPicker(); }
+        else if (type === 'Monthly') { document.getElementById('hidden-month').showPicker(); }
+        else if (type === 'Yearly') {
+          if(confirm(`${new Date().getFullYear()}年をまとめますか？`)) { sendToSynthesis(type, new Date().getFullYear().toString()); }
         }
       }
+
+      function executeSynthesis(inputSource) {
+        const val = (inputSource === 'date') ? document.getElementById('hidden-date').value : document.getElementById('hidden-month').value;
+        if (!val) return;
+        sendToSynthesis(currentSynType, val.replace(/-/g, '/'));
+      }
+
+      function sendToSynthesis(type, targetStr) {
+        toggleSynthesisMenu();
+        addBubble(`【${type}まとめ】リクエスト送信... (${targetStr})`, 'system');
+        // GAS側の関数 runSynthesisEngine を叩く
+        google.script.run
+          .withSuccessHandler(() => addBubble(`✅ ${type}まとめ完了！シートを確認してくれ。`, 'titan'))
+          .withFailureHandler((err) => addBubble(`⚠️ 蒸留エラー: ${err.message}`, 'system'))
+          .runSynthesisEngine(type, targetStr);
+      }
+
+      /* ════ 2. 音声認識 & チャット ════ */
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'ja-JP'; recognition.continuous = true;
+      let isRecording = false;
+
+      function toggleRecording() { isRecording ? recognition.stop() : recognition.start(); }
+      recognition.onstart = () => { isRecording = true; document.getElementById('mic-btn').classList.add('recording'); };
+      recognition.onend = () => { isRecording = false; document.getElementById('mic-btn').classList.remove('recording'); };
+      recognition.onresult = (e) => {
+        let transcript = e.results[e.results.length - 1][0].transcript;
+        if (transcript.trim() === '送信') { handleSend(); return; }
+        document.getElementById('text-input').value += transcript;
+      };
 
       function handleSend() {
         const input = document.getElementById('text-input');
@@ -132,54 +272,70 @@
         if (document.getElementById('ai-toggle').checked) { requestAiReply(text); }
       }
 
-      async function requestAiReply(userText) {
-        const loadingId = addLoading();
-        const data = await callTitanApi("ai_chat", { fullText: userText, history: conversationHistory });
-        removeLoading(loadingId);
-        addBubble(data.reply, 'titan');
-        conversationHistory += `[Titan]: ${data.reply}\n`;
+      function requestAiReply(userText) {
+        saveToGas("ai_chat", userText, conversationHistory, (data) => {
+          addBubble(data.reply, 'titan');
+          conversationHistory += `[Titan]: ${data.reply}\n`;
+        });
       }
 
-      async function saveConversation() {
+      function saveConversation() {
         if (!conversationHistory) return;
-        addBubble("Genesis Sheetへ書き込み中...", 'system');
-        const data = await callTitanApi("save", { fullText: conversationHistory });
-        if (data.status === "success") {
-          addBubble("✅ Genesis Sheet に無事刻まれたぞ。セッションをクリアした。", 'system');
+        addBubble("アーカイブ保存中...", 'system');
+        saveToGas("save", conversationHistory, null, () => {
+          addBubble("✅ 保存完了。セッションをクリアしたぞ。", 'system');
           conversationHistory = "";
-        } else {
-          addBubble("⚠️ 保存失敗: " + data.message, 'system');
-        }
+        });
       }
 
-      async function sendToSynthesis(type, targetStr) {
-        toggleSynthesisMenu();
-        addBubble(`【${type}まとめ】リクエスト送信... (${targetStr})`, 'system');
-        const data = await callTitanApi("synthesis", { subType: type, targetStr: targetStr });
-        if (data.status === "success") {
-          addBubble(`✅ ${type}まとめリクエスト受理！バックグラウンドで蒸留を開始したぞ。`, 'titan');
-        }
+      function saveToGas(type, text, history, callback) {
+        fetch(WEB_APP_URL, {
+          method: "POST", mode: "no-cors",
+          body: JSON.stringify({ type, fullText: text, history }),
+        }).then(() => { if(callback) callback({reply: "（通信完了）"}); });
       }
 
-      /* ════ 以降、UI系の補助関数（フォールバック、アニメ等）は維持 ════ */
-      function handleLogoError() { document.getElementById('main-logo').style.display = 'none'; document.getElementById('logo-fallback').style.display = 'inline'; }
-      function handleBgmError() { document.getElementById('bgm-control').style.display = 'none'; }
-      function toggleSynthesisMenu() { document.getElementById('synthesis-overlay').classList.toggle('open'); }
-      function openDatePick(type) { currentSynType = type; if (type === 'Daily' || type === 'Weekly') { document.getElementById('hidden-date').showPicker(); } else if (type === 'Monthly') { document.getElementById('hidden-month').showPicker(); } else if (type === 'Yearly') { if(confirm(`${new Date().getFullYear()}年をまとめますか？`)) { sendToSynthesis(type, new Date().getFullYear().toString()); } } }
-      function executeSynthesis(inputSource) { const val = (inputSource === 'date') ? document.getElementById('hidden-date').value : document.getElementById('hidden-month').value; if (!val) return; sendToSynthesis(currentSynType, val.replace(/-/g, '/')); }
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'ja-JP'; recognition.continuous = true;
-      function toggleRecording() { if(document.getElementById('mic-btn').classList.contains('recording')){ recognition.stop(); } else { recognition.start(); } }
-      recognition.onstart = () => { document.getElementById('mic-btn').classList.add('recording'); };
-      recognition.onend = () => { document.getElementById('mic-btn').classList.remove('recording'); };
-      recognition.onresult = (e) => { let transcript = e.results[e.results.length - 1][0].transcript; if (transcript.trim() === '送信') { handleSend(); return; } document.getElementById('text-input').value += transcript; };
-      function addBubble(text, type) { const div = document.createElement('div'); div.className = `bubble ${type}`; div.innerHTML = text.replace(/\n/g, '<br>'); const area = document.getElementById('chat-area'); area.appendChild(div); area.scrollTop = area.scrollHeight; }
-      function addLoading() { const id = 'loading-' + Date.now(); const div = document.createElement('div'); div.id = id; div.className = 'bubble titan'; div.innerHTML = '<div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>'; chatArea.appendChild(div); chatArea.scrollTop = chatArea.scrollHeight; return id; }
-      function removeLoading(id) { const el = document.getElementById(id); if (el) el.remove(); }
+      function addBubble(text, type) {
+        const div = document.createElement('div');
+        div.className = `bubble ${type}`;
+        div.innerHTML = text.replace(/\n/g, '<br>');
+        const area = document.getElementById('chat-area');
+        area.appendChild(div);
+        area.scrollTop = area.scrollHeight;
+      }
+
       function toggleMode() { document.getElementById('mode-label').innerText = document.getElementById('ai-toggle').checked ? "AI対話" : "記録"; }
-      function toggleBgm() { const audio = document.getElementById('bgm-audio'); const icon = document.getElementById('bgm-icon'); if (audio.paused) { audio.play(); icon.textContent = 'volume_up'; } else { audio.pause(); icon.textContent = 'volume_off'; } }
-      (function() { const canvas = document.getElementById('synapse-canvas'); const ctx = canvas.getContext('2d'); let nodes = []; function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; } function init() { resize(); nodes = Array.from({length: 40}, () => ({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4 })); } function draw() { ctx.clearRect(0,0,canvas.width,canvas.height); nodes.forEach(n => { n.x += n.vx; n.y += n.vy; if(n.x<0||n.x>canvas.width) n.vx*=-1; if(n.y<0||n.y>canvas.height) n.vy*=-1; ctx.beginPath(); ctx.arc(n.x, n.y, 1.2, 0, Math.PI*2); ctx.fillStyle = "rgba(240,192,64,0.25)"; ctx.fill(); }); requestAnimationFrame(draw); } init(); draw(); window.addEventListener('resize', init); })();
+      function toggleBgm() {
+        const audio = document.getElementById('bgm-audio');
+        const icon = document.getElementById('bgm-icon');
+        if (audio.paused) { audio.play(); icon.textContent = 'volume_up'; }
+        else { audio.pause(); icon.textContent = 'volume_off'; }
+      }
+
+      /* ════ Background Animation (Synapse) ════ */
+      (function() {
+        const canvas = document.getElementById('synapse-canvas');
+        const ctx = canvas.getContext('2d');
+        let nodes = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        function init() {
+          resize();
+          nodes = Array.from({length: 50}, () => ({
+            x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5
+          }));
+        }
+        function draw() {
+          ctx.clearRect(0,0,canvas.width,canvas.height);
+          nodes.forEach(n => {
+            n.x += n.vx; n.y += n.vy;
+            if(n.x<0||n.x>canvas.width) n.vx*=-1; if(n.y<0||n.y>canvas.height) n.vy*=-1;
+            ctx.beginPath(); ctx.arc(n.x, n.y, 1.5, 0, Math.PI*2); ctx.fillStyle = "rgba(240,192,64,0.3)"; ctx.fill();
+          });
+          requestAnimationFrame(draw);
+        }
+        init(); draw(); window.addEventListener('resize', init);
+      })();
     </script>
   </body>
 </html>

@@ -468,6 +468,189 @@
 
       #bgm-slider { display: none; width: 66px; accent-color: var(--gold-400); }
       #bgm-slider.open { display: block; }
+
+      /* ── Synthesis Trigger Button ── */
+      #synth-trigger {
+        background: rgba(13,21,38,0.8);
+        border: 1px solid rgba(240,192,64,0.2);
+        border-radius: 9999px;
+        color: var(--gold-400);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        padding: 6px 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex-shrink: 0;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        transition: 0.2s;
+        white-space: nowrap;
+      }
+      #synth-trigger:hover {
+        border-color: rgba(240,192,64,0.5);
+        box-shadow: 0 0 12px var(--gold-glow);
+      }
+      #synth-trigger:active { transform: scale(0.96); }
+
+      /* ── Synthesis Popup Panel (bottom sheet) ── */
+      #synth-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        display: none;
+      }
+      #synth-overlay.open { display: block; }
+
+      #synth-panel {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 50;
+        padding: 0 14px 28px;
+        transform: translateY(110%);
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s;
+        opacity: 0;
+        pointer-events: none;
+      }
+      #synth-panel.open {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      #synth-panel-card {
+        background: var(--glass-bg);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border: 1px solid var(--glass-border);
+        border-radius: 18px;
+        padding: 16px 14px 14px;
+        box-shadow: 0 -4px 30px rgba(0,0,0,0.6);
+      }
+
+      #synth-panel-title {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--gold-400);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        text-align: center;
+        margin-bottom: 14px;
+      }
+
+      /* ── Synthesis Buttons inside Panel ── */
+      .synthesis-row {
+        display: flex;
+        gap: 8px;
+      }
+
+      .synth-btn {
+        flex: 1;
+        padding: 12px 4px;
+        background: rgba(2,8,23,0.5);
+        border: 1px solid rgba(240,192,64,0.18);
+        border-radius: 12px;
+        color: var(--text-primary);
+        cursor: pointer;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        transition: 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+      .synth-btn:hover {
+        border-color: rgba(240,192,64,0.5);
+        background: rgba(22,34,68,0.85);
+        box-shadow: 0 0 14px var(--gold-glow);
+      }
+      .synth-btn:active { transform: scale(0.94); }
+      .synth-btn .synth-icon { font-size: 20px; }
+      .synth-btn .synth-label { font-size: 10px; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.04em; }
+
+      /* ── Synthesis Modal ── */
+      #synth-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: rgba(2,8,23,0.75);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        justify-content: center;
+        align-items: center;
+      }
+
+      #synth-modal-card {
+        background: var(--glass-bg);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border: 1px solid var(--glass-border);
+        border-radius: 18px;
+        padding: 24px 20px;
+        width: min(320px, 88vw);
+        box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+      }
+
+      #synth-modal-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--gold-400);
+        letter-spacing: 0.05em;
+        margin-bottom: 10px;
+      }
+
+      #synth-modal-message {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-bottom: 14px;
+      }
+
+      #synth-modal-input {
+        width: 100%;
+        padding: 10px 12px;
+        background: rgba(2,8,23,0.6);
+        border: 1px solid rgba(240,192,64,0.2);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-size: 14px;
+        margin-bottom: 20px;
+        outline: none;
+        box-sizing: border-box;
+      }
+      #synth-modal-input:focus { border-color: rgba(240,192,64,0.45); }
+
+      .synth-modal-btns {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+      .synth-modal-btns button {
+        padding: 9px 18px;
+        border: none;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .synth-modal-btns .btn-cancel {
+        background: rgba(255,255,255,0.07);
+        color: var(--text-secondary);
+        border: 1px solid rgba(255,255,255,0.1);
+      }
+      .synth-modal-btns .btn-cancel:hover { color: var(--text-primary); }
+      .synth-modal-btns .btn-execute {
+        background: linear-gradient(135deg, rgba(240,192,64,0.25), rgba(180,130,0,0.35));
+        color: var(--gold-400);
+        border: 1px solid rgba(240,192,64,0.35);
+      }
+      .synth-modal-btns .btn-execute:hover { box-shadow: 0 0 12px var(--gold-glow-strong); }
+      .synth-modal-btns .btn-execute:active { transform: scale(0.97); }
     </style>
   </head>
   <body>
@@ -504,9 +687,50 @@
     <!-- BGM -->
     <audio id="bgm-audio" src="./AI_PARTNER_SYNC_BGM.m4a" loop preload="none"></audio>
 
+    <!-- Synthesis overlay (tap outside to close) -->
+    <div id="synth-overlay" onclick="closeSynthPanel()"></div>
+
+    <!-- Synthesis bottom-sheet panel -->
+    <div id="synth-panel">
+      <div id="synth-panel-card">
+        <div id="synth-panel-title">⚗️ 叡智の蒸留 — Synthesis</div>
+        <div class="synthesis-row">
+          <button class="synth-btn" onclick="openSynthesisModal('Daily')">
+            <span class="synth-icon">📅</span>
+            <span class="synth-label">Daily</span>
+          </button>
+          <button class="synth-btn" onclick="openSynthesisModal('Weekly')">
+            <span class="synth-icon">📆</span>
+            <span class="synth-label">Weekly</span>
+          </button>
+          <button class="synth-btn" onclick="openSynthesisModal('Monthly')">
+            <span class="synth-icon">🗓</span>
+            <span class="synth-label">Monthly</span>
+          </button>
+          <button class="synth-btn" onclick="openSynthesisModal('Yearly')">
+            <span class="synth-icon">📊</span>
+            <span class="synth-label">Yearly</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Synthesis date-picker modal -->
+    <div id="synth-modal" style="display:none;">
+      <div id="synth-modal-card">
+        <div id="synth-modal-title"></div>
+        <div id="synth-modal-message"></div>
+        <input id="synth-modal-input" type="date">
+        <div class="synth-modal-btns">
+          <button class="btn-cancel" onclick="closeSynthesisModal()">キャンセル</button>
+          <button class="btn-execute" onclick="executeSynthesis()">実行</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Footer -->
     <div class="footer glass">
-      <!-- BGM + Save button (同じ行) -->
+      <!-- BGM + Synthesis trigger + Save button (同じ行) -->
       <div class="save-row">
         <div id="bgm-control">
           <button id="bgm-toggle" onclick="toggleBgm()" title="BGM ON/OFF">
@@ -515,6 +739,9 @@
           <button id="bgm-slider-toggle" onclick="toggleBgmSlider()">▲</button>
           <input type="range" id="bgm-slider" min="0" max="100" value="8" oninput="setBgmVolume(this.value)">
         </div>
+        <button id="synth-trigger" onclick="toggleSynthPanel()">
+          ⚗️ 蒸留
+        </button>
         <div id="save-area">
           <button id="save-btn" onclick="saveConversation()">
             <span class="material-icons" style="font-size:18px;">save</span>
@@ -1047,6 +1274,82 @@
       function autoResize(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
       textInput.addEventListener('input', function() { autoResize(this); });
       // Enter は改行のみ。送信は→ボタン or 音声「送信」
+
+      /* ═══════════════════════════════════════════
+         Synthesis (⚗️ 叡智の蒸留) Logic
+      ═══════════════════════════════════════════ */
+      let currentSynthesisType = null;
+
+      function toggleSynthPanel() {
+        const panel   = document.getElementById('synth-panel');
+        const overlay = document.getElementById('synth-overlay');
+        const isOpen  = panel.classList.toggle('open');
+        overlay.classList.toggle('open', isOpen);
+      }
+
+      function closeSynthPanel() {
+        document.getElementById('synth-panel').classList.remove('open');
+        document.getElementById('synth-overlay').classList.remove('open');
+      }
+
+      function openSynthesisModal(type) {
+        closeSynthPanel();
+        currentSynthesisType = type;
+
+        const now = new Date();
+        const y   = now.getFullYear();
+        const m   = String(now.getMonth() + 1).padStart(2, '0');
+        const d   = String(now.getDate()).padStart(2, '0');
+
+        const configs = {
+          Daily:   { label: '対象の日付を選択してください',       inputType: 'date',   value: `${y}-${m}-${d}` },
+          Weekly:  { label: '起算日（最終日）を選択してください', inputType: 'date',   value: `${y}-${m}-${d}` },
+          Monthly: { label: '対象月を選択してください',           inputType: 'month',  value: `${y}-${m}` },
+          Yearly:  { label: '対象年を入力してください',           inputType: 'number', value: String(y) },
+        };
+        const cfg = configs[type];
+
+        document.getElementById('synth-modal-title').textContent   = `⚗️ ${type} まとめ`;
+        document.getElementById('synth-modal-message').textContent = cfg.label;
+
+        const input = document.getElementById('synth-modal-input');
+        input.type  = cfg.inputType;
+        input.value = cfg.value;
+        if (cfg.inputType === 'number') { input.min = '2020'; input.max = String(y + 1); }
+
+        document.getElementById('synth-modal').style.display = 'flex';
+      }
+
+      function closeSynthesisModal() {
+        document.getElementById('synth-modal').style.display = 'none';
+        currentSynthesisType = null;
+      }
+
+      function executeSynthesis() {
+        const type = currentSynthesisType;
+        const val  = document.getElementById('synth-modal-input').value;
+        if (!val) { alert('値を選択してください'); return; }
+        closeSynthesisModal();
+
+        const targetStr = val.replace(/-/g, '/');
+        addBubble(`⚗️ ${type}まとめを生成中… (${targetStr})`, 'system');
+
+        fetch(WEB_APP_URL, {
+          method: 'POST',
+          redirect: 'follow',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ type: 'synthesis', synthesisType: type, targetStr }),
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (data.status === 'success') {
+            addBubble(`✅ ${type}まとめをスプレッドシートに記録しました。`, 'system');
+          } else {
+            addBubble(`⚠️ エラー: ${data.message || '不明なエラー'}`, 'system');
+          }
+        })
+        .catch(err => addBubble(`⚠️ 通信エラー: ${err.message}`, 'system'));
+      }
     </script>
   </body>
 </html>
